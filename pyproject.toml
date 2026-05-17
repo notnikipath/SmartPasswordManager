@@ -1,0 +1,11 @@
+[project]
+name = "smart-password-manager"
+version = "1.0.0"
+description = "Desktop password manager with local encryption"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

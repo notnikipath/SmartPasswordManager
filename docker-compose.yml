@@ -1,0 +1,21 @@
+﻿services:
+  password-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smart-password-manager
+    network_mode: bridge
+    environment:
+      - DISPLAY=${DISPLAY:-:1}
+      - QT_QPA_PLATFORM=${QT_QPA_PLATFORM:-xcb}
+      - QT_X11_NO_MITSHM=1
+      - SPM_DATA_DIR=/app/data
+      - SPM_REQUIRE_SQLCIPHER=1
+      - NOVNC_PORT=6080
+      - VNC_PORT=5900
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "${SPM_WEB_PORT:-18080}:6080"
+    stdin_open: true
+    tty: true
