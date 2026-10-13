@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from PyQt6.QtWidgets import (
+    QCheckBox,
     QDialog,
     QFormLayout,
     QLabel,
@@ -10,6 +11,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
 )
 
+from core.database.db_manager import SQLCIPHER_AVAILABLE
 from core.services.auth_service import AuthService, SessionContext
 
 
@@ -21,7 +23,7 @@ class LoginWindow(QDialog):
 
         self._setup_mode = not self._auth.is_master_password_set()
         self.setWindowTitle("Мастер-пароль")
-        self.setFixedSize(420, 220)
+        self.setMinimumSize(500, 340)
 
         self._description = QLabel(
             "Первый запуск: создайте мастер-пароль."
@@ -41,14 +43,36 @@ class LoginWindow(QDialog):
         if self._setup_mode:
             form.addRow("Подтверждение:", self._confirm)
 
+        visibility = QCheckBox("Показать пароль")
+        visibility.toggled.connect(self._toggle_password_visibility)
+        self._password.setAccessibleName("Мастер-пароль")
+        self._confirm.setAccessibleName("Подтверждение мастер-пароля")
+        self._password.returnPressed.connect(self._on_submit)
+        self._confirm.returnPressed.connect(self._on_submit)
+
         submit = QPushButton("Войти" if not self._setup_mode else "Создать хранилище")
         submit.clicked.connect(self._on_submit)
 
         root = QVBoxLayout()
         root.addWidget(self._description)
+        root.setContentsMargins(24, 24, 24, 24)
+        root.setSpacing(16)
         root.addLayout(form)
+        root.addWidget(visibility)
+        if not SQLCIPHER_AVAILABLE:
+            notice = QLabel(
+                "SQLCipher недоступен. Поля паролей защищены AES, "
+                "но файл базы и названия записей не зашифрованы."
+            )
+            notice.setWordWrap(True)
+            root.addWidget(notice)
         root.addWidget(submit)
         self.setLayout(root)
+
+    def _toggle_password_visibility(self, visible: bool) -> None:
+        mode = QLineEdit.EchoMode.Normal if visible else QLineEdit.EchoMode.Password
+        self._password.setEchoMode(mode)
+        self._confirm.setEchoMode(mode)
 
     def _on_submit(self) -> None:
         master_password = self._password.text()

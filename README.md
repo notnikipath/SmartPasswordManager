@@ -112,3 +112,7 @@ pytest -q
 
 - `docs/security.md` — принятые меры безопасности
 - `docs/user_manual.md` — руководство пользователя
+
+## Windows: SQLCipher
+
+`sqlcipher3-binary` has no Windows wheel and is installed only on non-Windows systems. On Windows the application can run with SQLite: credential fields remain encrypted with AES-256-GCM, but the database file and entry titles are not encrypted. The login window explicitly displays this limitation. For mandatory whole-database encryption, install a compatible SQLCipher driver or use the Docker setup with `SPM_REQUIRE_SQLCIPHER=1`; this setting rejects an unencrypted database fallback.
